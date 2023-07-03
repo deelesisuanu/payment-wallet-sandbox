@@ -20,11 +20,13 @@ $(document).ready(function () {
         $(".banks-div-paystack").toggle();
         // check if div is showing
         if ($('.banks-div-paystack').is(':visible')) {
-            const bankListData = await fetchPaystackBanks();
-            const bankList = bankListData.data;
-            nigerianBanks = bankList;
-            for (var i = 0; i < bankList.length; i++) {
-                const bank = bankList[i];
+            if (nigerianBanks.length <= 0) {
+                const bankListData = await fetchPaystackBanks();
+                const bankList = bankListData.data;
+                nigerianBanks = bankList;
+            }
+            for (var i = 0; i < nigerianBanks.length; i++) {
+                const bank = nigerianBanks[i];
                 const bankName = bank.name ?? 'No Bank Name';
                 const singleBank = `<span style="color: black; border: none; border-radius: 4px; margin: 5px !important;">|${bankName}|</span>`;
                 $(".banks-div-paystack").append(singleBank);
