@@ -20,9 +20,7 @@ $(document).ready(function () {
         $(".banks-div-paystack").toggle();
         // check if div is showing
         if ($('.banks-div-paystack').is(':visible')) {
-            const paystackSecretKey = popupInput('Please enter your paystack secret key', 'Unable to load paystack secret key');
-            throwError('Paystack Secret Key', paystackSecretKey);
-            const bankListData = await fetchPaystackBanks(paystackSecretKey);
+            const bankListData = await fetchPaystackBanks();
             const bankList = bankListData.data;
             nigerianBanks = bankList;
             for (var i = 0; i < bankList.length; i++) {

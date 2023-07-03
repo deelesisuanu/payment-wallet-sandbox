@@ -34,8 +34,8 @@ function payWithPaystack(validatedemail, amountinkobo, firstname, lastname, ref,
     handler.openIframe();
 }
 
-async function fetchPaystackBanks(secretKey, currency) {
-    const banks = await fetchData(`https://api.paystack.co/bank?currency=${currency ?? 'NGN'}`, true, secretKey);
+async function fetchPaystackBanks(currency) {
+    const banks = await fetchData(`https://api.paystack.co/bank?currency=${currency ?? 'NGN'}`, false);
     return banks;
 }
 
