@@ -22,8 +22,10 @@ function payWithPaystack(validatedemail, amountinkobo, firstname, lastname, ref,
             else {
                 applicationData.push(object);
             }
-            alert(msg);
             console.log(response);
+            if (response.status == 'success' && response.message == 'Approved') {
+                updateWalletBalance(amountinkobo / 100);
+            }
         },
         onClose: function () {
             // Visitor cancelled payment

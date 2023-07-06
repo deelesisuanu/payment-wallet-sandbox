@@ -35,6 +35,10 @@ function getCopyrightYear() {
     return copyrightYear;
 }
 
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 async function fetchData(url, authorized, authorizer) {
     try {
         const extra_headers = authorized ? { Authorization: `Bearer ${authorizer}` } : {};
@@ -45,4 +49,27 @@ async function fetchData(url, authorized, authorizer) {
         console.error(error);
         // Handle errors
     }
+}
+
+function setStorage(key, value) {
+    window.localStorage.setItem(key, value);
+}
+
+function getStorage(key) {
+    return window.localStorage.getItem(key);
+}
+
+function removeStorage(key) {
+    window.localStorage.removeItem(key);
+}
+
+function removeAllStorage() {
+    window.localStorage.clear();
+}
+
+function updateWalletBalance(amount) {
+    const currentBal = getStorage(WALLET_BALANCE_KEY) ?? 0;
+    const newBalance = Number.parseFloat(currentBal) + amount;
+    setStorage(WALLET_BALANCE_KEY, newBalance);
+    $(".wallet-balance-amt").html(numberWithCommas(Number.parseFloat(newBalance)));
 }

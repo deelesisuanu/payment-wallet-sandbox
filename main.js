@@ -6,14 +6,25 @@ const applicationData = [];
 // }];
 
 let nigerianBanks = [];
+let walletBalance = 0;
+const WALLET_BALANCE_KEY = 'pws_wallet_key';
+const WALLET_TRANSACTION_KEY = 'pws_wallet_transaction_key';
 
 $(document).ready(function () {
 
+    // TODO:
     // alert('We don\'t store any information, you can read the source.');
 
     // setting copyright
     $(".pay-copyright").html(`&copy; ${getCopyrightYear()}`);
     $(".banks-div-paystack").hide();
+
+    const currentBalance = getStorage(WALLET_BALANCE_KEY);
+    if (!currentBalance) {
+        setStorage(WALLET_BALANCE_KEY, 0);
+    }
+
+    $(".wallet-balance-amt").html(numberWithCommas(Number.parseFloat(currentBalance ?? 0)));
 
     // toggle load nigerian banks
     $(".toggle-load-bank-list-paystack").on("click", async function () {
