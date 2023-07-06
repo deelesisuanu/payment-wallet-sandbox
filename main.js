@@ -55,14 +55,14 @@ $(document).ready(function () {
             for (var i = 0; i < transactionList.length; i++) {
                 const transaction = transactionList[i];
                 const singleTransaction = `<tr>
-                <td>1</td>
+                <td>${i+1}</td>
                 <td>${numberWithCommas(Number.parseFloat(transaction.amount))} - ${numberWithCommas(Number.parseFloat(transaction.amountinkobo))}</td>
                 <td>${transaction.generated_reference}</td>
                 <td>${transaction.payment_means}</td>
                 <td>${transaction.payment_provider}</td>
                 <td>${transaction.transaction_status}</td>
               </tr>`;
-              tranactionData += singleTransaction;
+                tranactionData += singleTransaction;
             }
             tranactionData += `</tbody></table>`;
             $(".transactions-div").html(tranactionData);
@@ -77,17 +77,36 @@ $(document).ready(function () {
         $(".banks-div-paystack").toggle();
         // check if div is showing
         if ($('.banks-div-paystack').is(':visible')) {
+            let bankData = `<table class="table table-striped">
+            <thead class="thead-dark">
+              <tr>
+                <th>S/No.</th>
+                <th>Bank Name</th>
+                <th>Bank Code</th>
+              </tr>
+            </thead>
+            <tbody>`;
+
             if (nigerianBanks.length <= 0) {
                 const bankListData = await fetchPaystackBanks();
                 const bankList = bankListData.data;
                 nigerianBanks = bankList;
             }
+
             for (var i = 0; i < nigerianBanks.length; i++) {
                 const bank = nigerianBanks[i];
                 const bankName = bank.name ?? 'No Bank Name';
-                const singleBank = `<span style="color: black; border: none; border-radius: 4px; margin: 5px !important;">|${bankName}|</span>`;
-                $(".banks-div-paystack").append(singleBank);
+                const singleBank = `<tr>
+                <td>${i+1}</td>
+                <td>${bankName}</td>
+                <td>${bank.code}</td>
+              </tr>`;
+                bankData += singleBank;
             }
+
+            bankData += `</tbody></table>`;
+            $(".banks-div-paystack").html(bankData);
+
         }
         else {
             $(".banks-div-paystack").html('');
