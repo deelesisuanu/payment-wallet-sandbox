@@ -1,5 +1,5 @@
 function payWithPaystack(validatedemail, amountinkobo, firstname, lastname, ref, public_key) {
-    var handler = PaystackPop.setup({
+    const handler = PaystackPop.setup({
         key: public_key,
         email: validatedemail,
         firstname: firstname,
@@ -7,30 +7,28 @@ function payWithPaystack(validatedemail, amountinkobo, firstname, lastname, ref,
         amount: amountinkobo,
         ref: ref,
         callback: function (response) {
-            var msg = 'Success. The transaction reference is <b>"' + response.trxref + '"</b>';
+            console.log(response);
+            let transactionData = getStorage(WALLET_TRANSACTION_KEY) ?? [];
+            transactionData = transactionData.length > 0 ? JSON.parse(transactionData): [];
+            if (response.status == 'success' && response.message == 'Approved') {
+                const amountSet = convertToNaira(amountinkobo);
+                updateWalletBalance(amountSet);
+            }
             const object = {
+                amountinkobo: amountinkobo,
+                amount: convertToNaira(amountinkobo),
                 generated_reference: ref,
                 payment_response_card: response,
                 payment_means: 'card',
                 payment_provider: 'paystack',
+                transaction_status: response.status,
             };
-            const index = applicationData.findIndex(item => item.payment_provider === 'paystack' && item.payment_means === 'card');
-            if (index !== -1) {
-                applicationData[index].generated_reference = ref;
-                applicationData[index].payment_response_card = response;
-            }
-            else {
-                applicationData.push(object);
-            }
-            console.log(response);
-            if (response.status == 'success' && response.message == 'Approved') {
-                updateWalletBalance(amountinkobo / 100);
-            }
+            transactionData.push(object);
+            setStorage(WALLET_TRANSACTION_KEY, JSON.stringify(transactionData));
         },
         onClose: function () {
             // Visitor cancelled payment
-            var msg = 'Cancelled. Please click the \'Pay\' button to try again';
-            alert(msg);
+            alert('Cancelled. Please click the \'Pay\' button to try again');
         }
     });
     handler.openIframe();

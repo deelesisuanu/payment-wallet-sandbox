@@ -67,6 +67,14 @@ function removeAllStorage() {
     window.localStorage.clear();
 }
 
+function convertToKobo(amount) {
+    return amount * 100;
+}
+
+function convertToNaira(amount) {
+    return amount / 100;
+}
+
 function updateWalletBalance(amount) {
     const currentBal = getStorage(WALLET_BALANCE_KEY) ?? 0;
     const newBalance = Number.parseFloat(currentBal) + amount;

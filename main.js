@@ -6,6 +6,7 @@ const applicationData = [];
 // }];
 
 let nigerianBanks = [];
+const transactionHistory = [];
 let walletBalance = 0;
 const WALLET_BALANCE_KEY = 'pws_wallet_key';
 const WALLET_TRANSACTION_KEY = 'pws_wallet_transaction_key';
@@ -18,6 +19,7 @@ $(document).ready(function () {
     // setting copyright
     $(".pay-copyright").html(`&copy; ${getCopyrightYear()}`);
     $(".banks-div-paystack").hide();
+    $(".transactions-div").hide();
 
     const currentBalance = getStorage(WALLET_BALANCE_KEY);
     if (!currentBalance) {
@@ -25,6 +27,50 @@ $(document).ready(function () {
     }
 
     $(".wallet-balance-amt").html(numberWithCommas(Number.parseFloat(currentBalance ?? 0)));
+
+    // toggle load tranactions list
+    $(".toggle-load-transaction-list").on("click", async function () {
+        $(".transactions-div").toggle();
+        // check if div is showing
+        if ($('.transactions-div').is(':visible')) {
+            let transactionList = getStorage(WALLET_TRANSACTION_KEY) ?? [];
+            if (transactionList) {
+                transactionList = transactionList.length > 0 ? JSON.parse(transactionList) : [];
+            }
+            else {
+                transactionList = [];
+            }
+            let tranactionData = `<table class="table table-striped">
+            <thead class="thead-dark">
+              <tr>
+                <th>S/No.</th>
+                <th>Amount - Amount in Kobo</th>
+                <th>Generate Ref</th>
+                <th>Payment Means</th>
+                <th>Payment Provider</th>
+                <th>Transaction Status</th>
+              </tr>
+            </thead>
+            <tbody>`;
+            for (var i = 0; i < transactionList.length; i++) {
+                const transaction = transactionList[i];
+                const singleTransaction = `<tr>
+                <td>1</td>
+                <td>${numberWithCommas(Number.parseFloat(transaction.amount))} - ${numberWithCommas(Number.parseFloat(transaction.amountinkobo))}</td>
+                <td>${transaction.generated_reference}</td>
+                <td>${transaction.payment_means}</td>
+                <td>${transaction.payment_provider}</td>
+                <td>${transaction.transaction_status}</td>
+              </tr>`;
+              tranactionData += singleTransaction;
+            }
+            tranactionData += `</tbody></table>`;
+            $(".transactions-div").html(tranactionData);
+        }
+        else {
+            $(".transactions-div").html('');
+        }
+    });
 
     // toggle load nigerian banks
     $(".toggle-load-bank-list-paystack").on("click", async function () {
@@ -110,5 +156,18 @@ $(document).ready(function () {
             }
             alert(genRef);
         });
+    });
+
+    $(".clear-my-wallet-balance").on("click", function () {
+        const shouldClear = window.confirm('Clearing this also clears your transaction history as well');
+        if (shouldClear) {
+            removeStorage(WALLET_BALANCE_KEY);
+            removeStorage(WALLET_TRANSACTION_KEY);
+            const currentBal = getStorage(WALLET_BALANCE_KEY) ?? 0;
+            $(".wallet-balance-amt").html(numberWithCommas(Number.parseFloat(currentBal)));
+        }
+        else {
+            alert('You have accept to clear the wallet balance and transaction history!');
+        }
     });
 });
