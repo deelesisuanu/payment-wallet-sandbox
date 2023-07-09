@@ -51,6 +51,18 @@ async function fetchData(url, authorized, authorizer) {
     }
 }
 
+async function postData(url, data, authorized, authorizer) {
+    try {
+        const extra_headers = authorized ? { Authorization: `Bearer ${authorizer}` } : {};
+        const response = await axios.post(url, data, { headers: extra_headers });
+        // Handle the response data
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        // Handle errors
+    }
+}
+
 function setStorage(key, value) {
     window.localStorage.setItem(key, value);
 }

@@ -5,6 +5,8 @@ const applicationData = [];
 //     payment_response_card: {},
 // }];
 
+const supportedCurrencies = ['Kobo', 'Naira'];
+
 let nigerianBanks = [];
 const transactionHistory = [];
 let walletBalance = 0;
@@ -20,6 +22,7 @@ $(document).ready(function () {
     $(".pay-copyright").html(`&copy; ${getCopyrightYear()}`);
     $(".banks-div-paystack").hide();
     $(".transactions-div").hide();
+    $(".converter-div").hide();
 
     const currentBalance = getStorage(WALLET_BALANCE_KEY);
     if (!currentBalance) {
@@ -27,6 +30,11 @@ $(document).ready(function () {
     }
 
     $(".wallet-balance-amt").html(numberWithCommas(Number.parseFloat(currentBalance ?? 0)));
+
+    // toggle show converter
+    $(".toggle-show-converter").on("click", async function () {
+        $(".converter-div").toggle();
+    });
 
     // toggle load tranactions list
     $(".toggle-load-transaction-list").on("click", async function () {
@@ -111,6 +119,57 @@ $(document).ready(function () {
         else {
             $(".banks-div-paystack").html('');
         }
+    });
+
+    $(".process-converter-btn").on("click", function () {
+
+        const amount = $("#converterSetAmount").val();
+        const fromCurrency = $("#converterStartCurrency").val();
+        const toCurrency = $("#converterEndCurrency").val();
+
+        if (!amount || amount == "") {
+            window.alert('Please enter amount to convert');
+            return;
+        }
+
+        if (!fromCurrency || fromCurrency == "") {
+            window.alert('Please select starting currency to convert');
+            return;
+        }
+
+        if (!toCurrency || toCurrency == "") {
+            window.alert('Please select end currency to convert');
+            return;
+        }
+
+        if (fromCurrency == toCurrency) {
+            window.alert('You cannot have the same value for from and to currency.');
+            return;
+        }
+
+        if (!supportedCurrencies.includes(fromCurrency) || !supportedCurrencies.includes(toCurrency)) {
+            window.alert('You have selected some unsupported currencies.');
+            return;
+        }
+
+        let amountConverted = 0;
+
+        if (fromCurrency == 'Kobo' && toCurrency == 'Naira') {
+            amountConverted = convertToNaira(amount);
+        }
+
+        if (fromCurrency == 'Naira' && toCurrency == 'Kobo') {
+            amountConverted = convertToKobo(amount);
+        }
+
+        if (amountConverted == 0) {
+            window.alert('We were unable to convert the amount entered, please try again.');
+            return;
+        }
+
+        $(".converter-message-div").html(`${numberWithCommas(amount)} ${fromCurrency} is ${numberWithCommas(amountConverted)} ${toCurrency}`);
+        
+
     });
 
     $(".fund-with-card").on("click", function () {
