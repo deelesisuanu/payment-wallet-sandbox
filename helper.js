@@ -41,13 +41,7 @@ async function fetchPaystackBanks(currency) {
     return banks;
 }
 
-async function createPaystackTransferRecipient(account_name, account_number, bank_name, secret_key) {
-    if (nigerianBanks.length <= 0) {
-        window.alert('Unable to load bank data');
-        return;
-    }
-    const bankIndex = nigerianBanks.findIndex(item => item.name == bank_name);
-    const bank = nigerianBanks[bankIndex];
+async function createPaystackTransferRecipient(account_name, account_number, bank, secret_key) {
     const objectTrans = {
         type: 'nuban',
         name: account_name,
@@ -69,6 +63,11 @@ async function createPaystackTransfer(reason, amount, recipient, secret_key) {
     };
     const transfer = await postData(`https://api.paystack.co/transfer`, objectTrans, true, secret_key);
     return transfer;
+}
+
+async function verifyPaystackAccountNumber(account_number, bank_code, secret_key) {
+    const accountVerified = await fetchData(`https://api.paystack.co/bank/resolve?account_number=${account_number}&bank_code=${bank_code}`, true, secret_key);
+    return accountVerified;
 }
 
 async function verifyPaystackTransfer(reference, secret_key) {

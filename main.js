@@ -50,6 +50,7 @@ $(document).ready(function () {
             }
 
             console.log(transactionList);
+            transactionList.sort((a, b) => transactionList.indexOf(b) - transactionList.indexOf(a));
 
             let tranactionData = `<table class="table table-striped">
             <thead class="thead-dark">
@@ -250,7 +251,23 @@ $(document).ready(function () {
             if (provider == 'paystack') {
                 const paystackSecretKey = popupInput('Enter Paystack Secret Key', 'Unable to process your secret key');
                 throwError('Paystack Secret Key', paystackSecretKey);
-                const transferRecipient = await createPaystackTransferRecipient(accountName, accountNumber, bankName, paystackSecretKey);
+                
+                if (nigerianBanks.length <= 0) {
+                    window.alert('Unable to load bank data');
+                    return;
+                }
+
+                const bankIndex = nigerianBanks.findIndex(item => item.name == bankName);
+                const bank = nigerianBanks[bankIndex];
+
+                const verifyAccountNumber = await verifyPaystackAccountNumber(accountNumber, bank.code, paystackSecretKey);
+
+                if (verifyAccountNumber.message != "Account number resolved") {
+                    window.alert('Unable to resolve account number.');
+                    return;
+                }
+                
+                const transferRecipient = await createPaystackTransferRecipient(accountName, accountNumber, bank, paystackSecretKey);
                 if (!transferRecipient) {
                     window.alert('Unable to complete this withdrawal, Could not create transfer recipient');
                     return;
