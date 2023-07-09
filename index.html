@@ -49,18 +49,18 @@
               <option value="Kobo">Kobo</option>
               <option value="Naira">Naira</option>
             </select>
-            
+
             <label class="sr-only" for="converterEndCurrency">To</label>
             <select class="form-control mb-2 mr-sm-2" id="converterEndCurrency">
               <option value="Naira">Naira</option>
               <option value="Kobo">Kobo</option>
             </select>
-          
+
             <button type="button" class="btn btn-outline-primary mb-2 process-converter-btn">Convert</button>
 
-            <hr/>
+            <hr />
             <div class="converter-message-div"></div>
-            <hr/>
+            <hr />
 
           </form>
         </div>
@@ -85,7 +85,7 @@
       <div class="banks-div-paystack"></div>
       <hr />
     </div>
-    
+
     <h1 class="display-4">
       Wallet Balance
       <strong>(</strong><span class="wallet-balance-amt"></span><strong>)</strong>
@@ -102,16 +102,12 @@
           <h4 class="my-0 font-weight-normal">Paystack</h4>
         </div>
         <div class="card-body">
-          <button type="button" class="btn btn-lg btn-block btn-outline-primary fund-with-card"
-            data-provider="paystack">Fund Wallet with Card</button>
-          <button type="button" class="btn btn-lg btn-block btn-outline-danger fund-with-transfer"
-            data-provider="paystack">Fund Wallet with Transfer</button>
-          <button type="button" class="btn btn-lg btn-block btn-outline-secondary withdraw-from-wallet"
-            data-provider="paystack">Withdraw From Wallet</button>
-          <button type="button" class="btn btn-lg btn-block btn-outline-success check-transaction-by-ref-card"
-            data-provider="paystack">Check Transaction By Reference (Card)</button>
-          <button type="button" class="btn btn-lg btn-block btn-outline-warning check-transaction-by-ref-transfer"
-            data-provider="paystack">Check Transaction By Reference (Transfer)</button>
+          <button type="button" class="btn btn-lg btn-block btn-outline-primary fund-with-card" data-provider="paystack">Fund Wallet with Card</button>
+          <button type="button" class="btn btn-lg btn-block btn-outline-danger fund-with-transfer" data-provider="paystack">Fund Wallet with Transfer</button>
+          <button type="button" class="btn btn-lg btn-block btn-outline-secondary withdraw-from-wallet" data-provider="paystack">Withdraw From Wallet</button>
+          <button type="button" class="btn btn-lg btn-block btn-outline-success check-transaction-by-ref-card" data-provider="paystack">Check Transaction By Reference (Card)</button>
+          <button type="button" class="btn btn-lg btn-block btn-outline-warning check-transaction-by-ref-transfer" data-provider="paystack">Check Transaction By Reference (Transfer)</button>
+          <button type="button" class="btn btn-lg btn-block btn-outline-dark check-transaction-by-ref-withdrawal" data-provider="paystack">Check Transaction By Reference (Withdrawal)</button>
         </div>
       </div>
       <div class="card mb-4 box-shadow">
@@ -119,12 +115,9 @@
           <h4 class="my-0 font-weight-normal">Flutterwave</h4>
         </div>
         <div class="card-body">
-          <button type="button" class="btn btn-lg btn-block btn-outline-primary fund-with-card"
-            data-provider="flutterwave">Fund Wallet with Card</button>
-          <button type="button" class="btn btn-lg btn-block btn-outline-danger fund-with-transfer"
-            data-provider="flutterwave">Fund Wallet with Transfer</button>
-          <button type="button" class="btn btn-lg btn-block btn-outline-secondary withdraw-from-wallet"
-            data-provider="flutterwave">Withdraw From Wallet</button>
+          <button type="button" class="btn btn-lg btn-block btn-outline-primary fund-with-card" data-provider="flutterwave">Fund Wallet with Card</button>
+          <button type="button" class="btn btn-lg btn-block btn-outline-danger fund-with-transfer" data-provider="flutterwave">Fund Wallet with Transfer</button>
+          <button type="button" class="btn btn-lg btn-block btn-outline-secondary withdraw-from-wallet" data-provider="flutterwave">Withdraw From Wallet</button>
         </div>
       </div>
     </div>

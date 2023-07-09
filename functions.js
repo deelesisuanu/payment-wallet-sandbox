@@ -93,3 +93,10 @@ function updateWalletBalance(amount) {
     setStorage(WALLET_BALANCE_KEY, newBalance);
     $(".wallet-balance-amt").html(numberWithCommas(Number.parseFloat(newBalance)));
 }
+
+function updateWalletBalanceDecrease(amount) {
+    const currentBal = getStorage(WALLET_BALANCE_KEY) ?? 0;
+    const newBalance = Number.parseFloat(currentBal) - amount;
+    setStorage(WALLET_BALANCE_KEY, newBalance);
+    $(".wallet-balance-amt").html(numberWithCommas(Number.parseFloat(newBalance)));
+}

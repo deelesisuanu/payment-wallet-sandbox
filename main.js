@@ -48,6 +48,9 @@ $(document).ready(function () {
             else {
                 transactionList = [];
             }
+
+            console.log(transactionList);
+
             let tranactionData = `<table class="table table-striped">
             <thead class="thead-dark">
               <tr>
@@ -57,18 +60,22 @@ $(document).ready(function () {
                 <th>Payment Means</th>
                 <th>Payment Provider</th>
                 <th>Transaction Status</th>
+                <th>Payment Type</th>
+                <th>Transaction Type</th>
               </tr>
             </thead>
             <tbody>`;
             for (var i = 0; i < transactionList.length; i++) {
                 const transaction = transactionList[i];
                 const singleTransaction = `<tr>
-                <td>${i+1}</td>
+                <td>${i + 1}</td>
                 <td>${numberWithCommas(Number.parseFloat(transaction.amount))} - ${numberWithCommas(Number.parseFloat(transaction.amountinkobo))}</td>
                 <td>${transaction.generated_reference}</td>
                 <td>${transaction.payment_means}</td>
                 <td>${transaction.payment_provider}</td>
                 <td>${transaction.transaction_status}</td>
+                <td>${transaction.payment_type ?? 'credit'}</td>
+                <td>${transaction.transaction_type ?? 'fund_wallet'}</td>
               </tr>`;
                 tranactionData += singleTransaction;
             }
@@ -105,7 +112,7 @@ $(document).ready(function () {
                 const bank = nigerianBanks[i];
                 const bankName = bank.name ?? 'No Bank Name';
                 const singleBank = `<tr>
-                <td>${i+1}</td>
+                <td>${i + 1}</td>
                 <td>${bankName}</td>
                 <td>${bank.code}</td>
               </tr>`;
@@ -168,7 +175,7 @@ $(document).ready(function () {
         }
 
         $(".converter-message-div").html(`${numberWithCommas(amount)} ${fromCurrency} is ${numberWithCommas(amountConverted)} ${toCurrency}`);
-        
+
 
     });
 
@@ -218,8 +225,61 @@ $(document).ready(function () {
     $(".withdraw-from-wallet").on("click", function () {
         const provider = $(this).attr("data-provider");
         alert(`Withdrawing from wallet with: ${provider}`);
-        popupInput('Enter the amount you wish to withdraw', 'Unable to process Prompt', (amount) => {
-            alert(amount);
+        popupInput('Enter the amount you wish to withdraw', 'Unable to process Prompt', async (amount) => {
+
+            let transactionData = getStorage(WALLET_TRANSACTION_KEY) ?? [];
+            transactionData = transactionData.length > 0 ? JSON.parse(transactionData) : [];
+
+            amount = Number.parseFloat(amount);
+
+            let currentBalance = getStorage(WALLET_BALANCE_KEY);
+            currentBalance = Number.parseFloat(currentBalance) ?? 0;
+
+            if (currentBalance < amount) {
+                window.alert('We are unable to complete this transaction, Insufficient Funds.');
+                return;
+            }
+
+            const accountNumber = popupInput('Enter Account Number', 'Unable to process Account Number');
+            const accountName = popupInput('Enter Account Name', 'Unable to process Account Name');
+            const bankName = popupInput('Enter Bank Name. You may get an error if you do not choose any of our designated bank list', 'Unable to process Bank Name');
+            throwError('Account Number', accountNumber);
+            throwError('Account Name', accountName);
+            throwError('Bank Name', bankName);
+
+            if (provider == 'paystack') {
+                const paystackSecretKey = popupInput('Enter Paystack Secret Key', 'Unable to process your secret key');
+                throwError('Paystack Secret Key', paystackSecretKey);
+                const transferRecipient = await createPaystackTransferRecipient(accountName, accountNumber, bankName, paystackSecretKey);
+                if (!transferRecipient) {
+                    window.alert('Unable to complete this withdrawal, Could not create transfer recipient');
+                    return;
+                }
+                const transfer = await createPaystackTransfer('PROCESS FUNDS TEST', amount, transferRecipient.data.recipient_code, paystackSecretKey);
+                if (!transfer) {
+                    window.alert('Unable to complete this withdrawal, Could not create transfer');
+                    return;
+                }
+                const object = {
+                    amountinkobo: convertToKobo(amount),
+                    amount: amount,
+                    generated_reference: transfer.data.reference,
+                    payment_response_card: transfer.data,
+                    payment_means: 'balance',
+                    payment_provider: 'paystack',
+                    transaction_status: transfer.data.status,
+                    payment_type: 'debit',
+                    transaction_type: 'withdraw_funds',
+                };
+                transactionData.push(object);
+                setStorage(WALLET_TRANSACTION_KEY, JSON.stringify(transactionData));
+                if (transfer.data.status == 'success') {
+                    updateWalletBalanceDecrease(amount);
+                }
+                window.alert('Transaction initiated successfully.');
+                window.alert('You may need to verify the transaction by reference (withdrawal) if your balance is yet to be updated.');
+            }
+
         });
     });
 
@@ -233,6 +293,36 @@ $(document).ready(function () {
                 genRef = applicationData[index].generated_reference;
             }
             alert(genRef);
+        });
+    });
+
+    $(".check-transaction-by-ref-withdrawal").on("click", function () {
+        const provider = $(this).attr("data-provider");
+        alert(`Checking transaction by reference (Withdrawal) for: ${provider}`);
+        popupInput('Enter the reference you wish to check for', 'Please enter a valid reference to check response', async (ref) => {
+            let transactionData = getStorage(WALLET_TRANSACTION_KEY) ?? [];
+            transactionData = transactionData.length > 0 ? JSON.parse(transactionData) : [];
+
+            if (provider == 'paystack') {
+                const paystackSecretKey = popupInput('Enter Paystack Secret Key', 'Unable to process your secret key');
+                throwError('Paystack Secret Key', paystackSecretKey);
+
+                const verifiedTransaction = await verifyPaystackTransfer(ref, paystackSecretKey);
+                const transferIndex = transactionData.findIndex(item => item.payment_provider === provider && item.payment_means === 'balance' && item.payment_type === 'debit' && item.transaction_type === 'withdraw_funds');
+                if (transferIndex !== -1) {
+                    if (verifiedTransaction.data.status != transactionData[transferIndex].transaction_status) {
+                        transactionData[transferIndex].transaction_status = verifiedTransaction.data.status;
+                        $(".toggle-load-bank-list-paystack").toggle();
+                        let currentBalance = getStorage(WALLET_BALANCE_KEY);
+                        currentBalance = Number.parseFloat(currentBalance) ?? 0;
+                        if (currentBalance < transactionData[transferIndex].amount) {
+                            window.alert('We are unable to complete this transaction, Insufficient Funds.');
+                            return;
+                        }
+                        updateWalletBalanceDecrease(transactionData[transferIndex].amount);
+                    }
+                }
+            }
         });
     });
 

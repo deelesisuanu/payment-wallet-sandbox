@@ -24,6 +24,6 @@ function isValidPaystackPublicKey(public_key) {
 function throwError(key, value) {
     if (value == null || value == "") {
         alert(`${key} is not valid`);
-        return;
+        return null;
     }
 }

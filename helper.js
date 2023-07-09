@@ -15,13 +15,15 @@ function payWithPaystack(validatedemail, amountinkobo, firstname, lastname, ref,
                 updateWalletBalance(amountSet);
             }
             const object = {
-                amountinkobo: amountinkobo,
-                amount: convertToNaira(amountinkobo),
+                amountinkobo: Number.parseFloat(amountinkobo),
+                amount: convertToNaira(Number.parseFloat(amountinkobo)),
                 generated_reference: ref,
                 payment_response_card: response,
                 payment_means: 'card',
                 payment_provider: 'paystack',
                 transaction_status: response.status,
+                payment_type: 'credit',
+                transaction_type: 'fund_wallet',
             };
             transactionData.push(object);
             setStorage(WALLET_TRANSACTION_KEY, JSON.stringify(transactionData));
